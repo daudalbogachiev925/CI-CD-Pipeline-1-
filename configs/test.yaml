@@ -1,0 +1,8 @@
+name: test
+platform: "C:/Program Files/1cv8/8.3.24.1548/bin/1cv8.exe"
+ib_path: "tcp://test-1c.company.local"
+server: "test-1c.company.local"
+cluster: "test"
+user: "CI"
+password: "${CI_PASSWORD}"
+deploy_timeout: 900
