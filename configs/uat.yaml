@@ -1,0 +1,9 @@
+name: uat
+platform: "C:/Program Files/1cv8/8.3.24.1548/bin/1cv8.exe"
+ib_path: "tcp://uat-1c.company.local"
+server: "uat-1c.company.local"
+cluster: "uat"
+user: "CI"
+password: "${CI_PASSWORD}"
+deploy_timeout: 900
+approval_required: true
