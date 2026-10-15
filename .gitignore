@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+out/
+ib/
+*.cf
+*.log
+rollback_history.json
