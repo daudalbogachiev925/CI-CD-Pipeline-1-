@@ -1,0 +1,23 @@
+name: CD Prod
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy-prod:
+    runs-on: [self-hosted, windows, onec]
+    environment:
+      name: prod
+      url: https://prod-1c.company.local
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download release
+        run: gh release download ${{ github.event.release.tag_name }} -p "*.cf"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Backup
+        run: python -m src.backup --env prod
+      - name: Deploy
+        env:
+          CI_PASSWORD: ${{ secrets.CI_PASSWORD }}
+        run: python -m src.deploy --env prod --cf "*.cf"
