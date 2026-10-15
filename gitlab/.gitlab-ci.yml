@@ -1,0 +1,50 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+variables:
+  GIT_DEPTH: 0
+
+bsl-lint:
+  stage: lint
+  tags: [onec, windows]
+  script:
+    - bsl-language-server analyze --src src -o bsl.json
+    - python tools/check_bsl.py bsl.json
+
+unit-tests:
+  stage: test
+  tags: [onec, windows]
+  script:
+    - python tools/run_tests.py
+
+build-cf:
+  stage: build
+  tags: [onec, windows]
+  script:
+    - python tools/build.py --src src/configuration --out out/cf
+  artifacts:
+    paths:
+      - out/cf
+    expire_in: 7 days
+
+deploy-dev:
+  stage: deploy
+  tags: [onec, windows]
+  environment: dev
+  only:
+    - develop
+  script:
+    - python -m src.deploy --env dev --cf out/cf
+
+deploy-prod:
+  stage: deploy
+  tags: [onec, windows]
+  environment: prod
+  when: manual
+  only:
+    - tags
+  script:
+    - python -m src.deploy --env prod --cf out/cf
