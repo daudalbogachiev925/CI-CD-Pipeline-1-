@@ -1,0 +1,10 @@
+name: prod
+platform: "C:/Program Files/1cv8/8.3.24.1548/bin/1cv8.exe"
+ib_path: "tcp://prod-1c.company.local"
+server: "prod-1c.company.local"
+cluster: "prod"
+user: "CI"
+password: "${CI_PASSWORD}"
+deploy_timeout: 1800
+approval_required: true
+backup_before_deploy: true
