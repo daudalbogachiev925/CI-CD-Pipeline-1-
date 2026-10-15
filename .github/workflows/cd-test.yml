@@ -1,0 +1,20 @@
+name: CD Test
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag'
+        required: true
+
+jobs:
+  deploy-test:
+    runs-on: [self-hosted, windows, onec]
+    environment: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: python tools/build.py --src src/configuration --out out/cf
+      - name: Deploy
+        env:
+          CI_PASSWORD: ${{ secrets.CI_PASSWORD }}
+        run: python -m src.deploy --env test --cf out/cf
