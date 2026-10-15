@@ -1,0 +1,20 @@
+name: CD Dev
+on:
+  push:
+    branches: [develop]
+    paths: ['src/**']
+
+jobs:
+  deploy-dev:
+    runs-on: [self-hosted, windows, onec]
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: cf-artifact
+          path: out/cf
+      - name: Deploy to Dev
+        env:
+          CI_PASSWORD: ${{ secrets.CI_PASSWORD }}
+        run: python -m src.deploy --env dev --cf out/cf
