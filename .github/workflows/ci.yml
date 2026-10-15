@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: [self-hosted, windows, onec]
+    steps:
+      - uses: actions/checkout@v4
+      - name: BSL LS
+        run: bsl-language-server analyze --src src -o bsl.json || true
+      - name: Check rules
+        run: python tools/check_bsl.py bsl.json
+
+  test:
+    needs: lint
+    runs-on: [self-hosted, windows, onec]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Vanessa tests
+        run: python tools/run_tests.py
+
+  build:
+    needs: test
+    runs-on: [self-hosted, windows, onec]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CF
+        run: python tools/build.py --src src/configuration --out out/cf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cf-artifact
+          path: out/cf
