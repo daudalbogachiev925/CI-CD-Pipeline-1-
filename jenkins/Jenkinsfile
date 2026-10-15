@@ -1,0 +1,41 @@
+pipeline {
+    agent { label 'onec-windows' }
+    parameters {
+        choice(name: 'ENV', choices: ['dev', 'test', 'uat', 'prod'], description: 'Environment')
+        string(name: 'VERSION', defaultValue: '', description: 'Version')
+    }
+    environment {
+        CI_PASSWORD = credentials('onec-ci-password')
+    }
+    stages {
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Lint') {
+            steps {
+                bat 'bsl-language-server analyze --src src -o bsl.json || exit 0'
+                bat 'python tools/check_bsl.py bsl.json'
+            }
+        }
+        stage('Test') {
+            steps { bat 'python tools/run_tests.py' }
+        }
+        stage('Build') {
+            steps {
+                bat 'python tools/build.py --src src/configuration --out out/cf'
+                stash includes: 'out/cf/**', name: 'cf'
+            }
+        }
+        stage('Deploy') {
+            when { expression { params.ENV != '' } }
+            steps {
+                unstash 'cf'
+                bat "python -m src.deploy --env ${params.ENV} --cf out/cf"
+            }
+        }
+    }
+    post {
+        success { echo 'Pipeline success' }
+        failure { echo 'Pipeline failed' }
+    }
+}
